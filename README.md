@@ -5,7 +5,7 @@ Generate a match index for your Fighting Game videos. The match index includes:
 * Duration of each match
 * Summary of character totals
 
-Want an easy way to create chapters for your YouTube videos? Just copy/paste the output into your video's description field, and away you go!
+Want an easy way to create timestamps for your YouTube videos? Just copy/paste the Match Indexer output into your video's description field, and away you go!
 
 # Prerequisites
 1. Download and install Python (https://python.org/downloads)
