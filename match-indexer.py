@@ -34,7 +34,7 @@ def is_valid_directory(p, arg):
         return dirName
 
 
-parser = argparse.ArgumentParser(description='Index stuff and shit')
+parser = argparse.ArgumentParser(description='Generate a fighting game match index with timestamps and characters used.')
 
 parser.add_argument(
     'layout',
@@ -48,17 +48,16 @@ parser.add_argument(
 
 parser.add_argument('-c', help='Output CSV format', action='store_true')
 
-parser.add_argument('-p', help='Preview while indexing', action='store_true')
-
 parser.add_argument('-n', help='Show match number sequentially in output', action='store_true')
 
-parser.add_argument('-z', help='Zoom preview window down to 50%%', action='store_true')
-
+parser.add_argument('-p', help='Preview while indexing', action='store_true')
 
 parser.add_argument(
     '-t',
     help='Path to templates folder (default: \"templates\" in current folder)',
     metavar='DIR', type=lambda x: is_valid_directory(parser, x))
+
+parser.add_argument('-z', help='Zoom preview window down to 50%% (used with the -p option)', action='store_true')
 
 args = parser.parse_args()
 

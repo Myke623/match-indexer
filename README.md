@@ -15,7 +15,7 @@ Want an easy way to create timestamps for your YouTube videos? Just copy/paste t
    * `pip install opencv-python`
 
 # Installation
-Download the match-indexer.py file along with sample templates and layouts folders to get started. These come prepared to detect Virtua Fighter 5 Final Showdown matches.
+Download the `match-indexer.py` file and ensure there are subfolders named `templates` and `layouts` at the same level. These come prepared to detect Virtua Fighter 5 Final Showdown matches.
 
 # Usage
 From a terminal window:
@@ -30,11 +30,10 @@ From a terminal window:
 
     -h, --help  show this help message and exit
     -c          Output CSV format
-    -p          Preview while indexing
     -n          Show match number sequentially in output
-    -z          Zoom preview window down to 50%
+    -p          Preview while indexing
     -t DIR      Path to templates folder (default: "templates" in current folder)
-
+    -z          Zoom preview window down to 50% (used with the -p option)
 
 # Configuration
 ## Templates
