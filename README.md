@@ -12,7 +12,7 @@ In order to use **Match Indexer** you need to install a Python interpreter and a
 1. Download and install Python (https://python.org/downloads)
 2. Install NumPy:
    * `pip install numpy`
-3. Install OpenCV (ref: https://pypi.org/project/opencv-python/)
+3. Install OpenCV (https://pypi.org/project/opencv-python/)
    * `pip install opencv-python`
 
 # Installation
@@ -28,21 +28,32 @@ If you're a content creator / producer of the original video footage, consider c
 Once the processing is done, you can use the timestamps output in the description with your original, higher-resolution video that you upload to YouTube, or similar video-hosting platform. In my personal experience, I worked with videos using a resolution of 1280 x 720.
 
 ## Templates
-Having decided on the working resolution for your **Match Indexer**, it's time to create *templates* for each character. In most Fighting Games, the selected character's portrait is typically displayed at the far ends of the health bar, so this will be the area **Match Indexer** searches in order to match it against a template.
+Having decided on the *working resolution* for your **Match Indexer**, it's time to create *templates* for each character. In most Fighting Games, the selected character's portrait is typically displayed at the far ends of the health bar, so this will be the area **Match Indexer** searches in order to match it against a template.
 
-For each character, you need to create two "templates" (image files) within the `templates` folder, one for Player 1 side and the other for Player 2. Do this by creating a `.jpg` file with the following naming convention:
+For each character, you need to create two image files within the `templates` folder, one for Player 1 side and the other for Player 2. Do this by creating a `.jpg` file with the following naming convention:
 
-    {character name}-1p.jpg
-    {character name}-2p.jpg
+    {character}-1p.jpg
+    {character}-2p.jpg
 
-The `{character name}` label will be used in the match indexer's output.
+The `{character}` label will be used in the output as the character's name. Also, spaces are allowed in the `{character}` name.
 
 > [!NOTE]
 > * This was deliberately designed this way, as opposed to using a single image and flipping it, since some games have non-mirrored 1P vs 2P character portraits.
-> * Create a separate folder for each unique Fighting Game you wish to process. The folder name `templates` is the default, but you are free to create others for each of your games which you can then specify with the `-t DIR` command-line option.
+
+### How to create templates
+My recommendation is to capture screenshots from the game at your *working resolution* with same player vs player matches, then use an image editing program to cut out the character portraits such that there's enough detail for them to be uniquely identifiable.
+
+You'll also need to create a template for the clock.
+
+![Creating Templates](assets/creating-templates.jpg)
+
+> [!TIP]
+> * Ensure that you capture no transparent sections around the character portrait, otherwise these will be virtually impossible to match with the ever-changing background that's visible behind the portrait.
+> * Similarly, for the clock template, in addition to transparent surroundings, ensure that you don't include any digits that will (obviously) be constantly changing.
+> * If you intend on processing multiple Fighting Games, then create a separate templates folder for each one, and name them appropriately. While `templates` folder is the default, you are free to specify which templates folder to use with the `-t DIR` command-line option.
 
 ## Layouts
-Layout files (`{layout name}.py`) are placed in the `layouts` folder, and contain a single variable called `layout` which is a [Python Dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) data type. This variable stores data in `key:value` pairs, and is used as your main configuration file.
+Layout files (`{layout name}.py`) are placed in the `layouts` folder, and contain a single variable called `layout` which is a [Python Dictionary](https://docs.python.org/3/tutorial/datastructures.html#dictionaries) data type. This variable stores data in `key:value` pairs, and is used as the main configuration file.
 
 The layout file must define the following keys:
 
@@ -56,11 +67,21 @@ The layout file must define the following keys:
 | widthClock | px | The width, in pixels, of the Clock ROI |
 | heightClock | px | The height, in pixels, of the Clock ROI |
 
-![Regions of Interest](assets/vf5fs-roi.jpg)
+This data is used to setup various **Regions of Interest (ROIs)** in which the templates will be compared for a match. Each ROI is simply determined by it's origin, width and height. Since we know exactly where the character portraits will appear, we can narrow down our search area, rather than try to search across the entire video frame, by defining fairly contained ROIs to optimise performance.
 
-This data is used to setup various **Regions of Interest (ROIs)** in which the templates will be compared for a match. Since we know exactly where the character portraits will appear, we can narrow down our search area, rather than try to search across the entire video frame, to optimise performance.
+![Regions of Interest](assets/regions-of-interest.jpg)
 
-## Scale
+### Scale
+While you may have decided on a particular *working resolution* for your videos and templates, sometimes the game you're trying to index isn't running at 'fullscreen'! This is often the case if the video footage includes some kind of stream or tournament overlay.
+
+This is where adjusting the `scale` factor in the layout file comes in. This value is normalised to your *working resolution*. For example, let's say we are operating at 1280x720. A `scale` value of 1.0 (100%) indicates that the game footage is running at fullscreen, i.e. 1280x720. If, however, there's an overlay such that the game footage is not at fullscreen, then we need to measure that and determine the appropriate scale factor. 
+
+![Scale](assets/scale.jpg)
+
+Continuing our example, let's say I take a screenshot and measure out the game area using an image editing program and find that the game is occupying only 1024x576 pixels. A quick calculation reveals that 1024 / 1280 = 0.8 (or 80%). As such, in my layout for this footage I would set the `scale` factor to 0.8. Then, all the character and clock image templates will get scaled appropriately during processing and, hopefully, match correctly!
+
+> [!IMPORTANT]
+> The `scale` only applies to the template images, and not the ROIs. So, you'll need to determine their origins, widths and heights again for the custom/reduced layout.
 
 # Usage
 From a terminal window:
@@ -69,7 +90,7 @@ From a terminal window:
 
 * OPTIONS: See the [Options](#Options) section for details.
 * LAYOUT: the name of the **layout** (`{layout}.py`) to use for indexing. See the [Layouts](#Layouts) section for more details.
-* FILENAME: the filename of the video to process. See the [Filename](#Filename) section for more information on video formats.
+* FILENAME: the filename of the video to process. 
 
 # Options
 
@@ -79,10 +100,10 @@ From a terminal window:
     -p          Preview while indexing
     -t DIR      Path to templates folder (default: "templates" in current folder)
     -z          Zoom preview window down to 50% (used with the -p option)
+
 # Output
-Print to screen, redirect to file, csv to spreadsheet
+The default output will print the results to the terminal window screen. However, for particularly long videos and/or convenience, you may redirect the output to a file as follows:
 
-# FAQ
+    > python.exe match-indexer.py OPTIONS LAYOUT FILENAME > output.txt
 
-### Question
-Answer 
+Furthermore, outputting to CSV format (with the `-c` command-line option) makes it easy to paste into a spreadsheet for additional processing or analysis.
