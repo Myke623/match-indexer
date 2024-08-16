@@ -69,7 +69,7 @@ videoFile = args.filename
 
 # Check templates
 if args.t:
-    templatePath = args.t
+    templatePath = args.t + '\\'
     print('Custom templates path: {0}'.format(templatePath))
 else:
     templatePath = 'templates\\'
@@ -77,7 +77,7 @@ else:
 
 # Check layouts
 if not os.path.isfile('layouts\\' + args.layout + '.py'):
-    print("Layout {0}.pyc file does not exist in layouts/".format(args.layout))
+    print("Layout {0}.py file does not exist in layouts/".format(args.layout))
     exit()
 else:
     layoutFile = importlib.import_module("layouts." + args.layout)
