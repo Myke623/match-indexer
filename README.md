@@ -7,7 +7,25 @@
 
 Want an easy way to create timestamps for your YouTube videos? Just copy/paste the Match Indexer output into your video's description field, and away you go!
 
-# Prerequisites
+# Usage
+From a terminal window:
+
+    > python.exe match-indexer.py OPTIONS LAYOUT FILENAME
+
+* OPTIONS: See the [Options](#Options) section for details.
+* LAYOUT: the name of the **layout** (`{layout}.py`) to use for indexing. See the [Layouts](#Layouts) section for more details.
+* FILENAME: the filename of the video to process. 
+
+# Options
+
+    -h, --help  show this help message and exit
+    -c          Output CSV format
+    -n          Show match number sequentially in output
+    -p          Preview while indexing (press 'Q' to quit the preview)
+    -t DIR      Path to templates folder (default: "templates" in current folder)
+    -z          Zoom preview window down to 50% (used with the -p option)
+
+# Dependencies
 In order to use **Match Indexer** you need to install a Python interpreter and a couple of libraries:
 1. Download and install Python (https://python.org/downloads)
 2. Install NumPy:
@@ -21,7 +39,7 @@ Download the `match-indexer.py` file and ensure there are subfolders named `temp
 # Setup
 Before you can start using the **Match Indexer** you need to setup a couple of things. Firstly, you'll need to decide what video resolution you'll want to *work* with, as this will determine how you go about creating your templates and defining your layouts. 
 
-The *Match Indexer* will process every single frame of your video, and within each frame it will search for *all the characters* in your Fighting Game's roster, on both Player 1 and 2 side, in order to detect a match. As you might imagine, the higher the resolution of the video being processed, the more pixels that need to be compared, and the more resource intesive (i.e. time consuming) this task becomes.
+The **Match Indexer** will process every single frame of your video, and within each frame it will search for *all the characters* in your Fighting Game's roster, on both Player 1 and 2 side, in order to detect a match. As you might imagine, the higher the resolution of the video being processed, the more pixels that need to be compared, and the more resource intesive (i.e. time consuming) this task becomes.
 
 If you're a content creator / producer of the original video footage, consider creating a down-sampled video export for the purposes of running it through the **Match Indexer**. This will be much quicker to process than, say, 3 hours worth of tournament footage captured at 4K 60FPS. 
 
@@ -72,7 +90,7 @@ This data is used to setup various **Regions of Interest (ROIs)** in which the t
 ![Regions of Interest](assets/regions-of-interest.jpg)
 
 ### Scale
-While you may have decided on a particular *working resolution* for your videos and templates, sometimes the game you're trying to index isn't running at 'fullscreen'! This is often the case if the video footage includes some kind of stream or tournament overlay.
+While you may have decided on a particular *working resolution* for your videos and templates, sometimes the game you're trying to index isn't running at fullscreen! This is often the case if the video footage includes some kind of stream or tournament overlay.
 
 This is where adjusting the `scale` factor in the layout file comes in. This value is normalised to your *working resolution*. For example, let's say we are operating at 1280x720. A `scale` value of 1.0 (100%) indicates that the game footage is running at fullscreen, i.e. 1280x720. If, however, there's an overlay such that the game footage is not at fullscreen, then we need to measure that and determine the appropriate scale factor. 
 
@@ -83,27 +101,47 @@ Continuing our example, let's say I take a screenshot and measure out the game a
 > [!IMPORTANT]
 > The `scale` only applies to the template images, and not the ROIs. So, you'll need to determine their origins, widths and heights again for the custom/reduced layout.
 
-# Usage
-From a terminal window:
+### How to create layouts
+The best way to create your layout file is to capture a screenshot from the video, open it into an image editing program and draw rectangular shapes over the ROIs for Player 1, Player 2 and the Clock. Most image editing programs let you view the shape properties to determine it's origin on the canvas, as well as dimensions such as the width and height:
 
-    > python.exe match-indexer.py OPTIONS LAYOUT FILENAME
+![Creating Layouts](assets/creating-layouts.jpg)
 
-* OPTIONS: See the [Options](#Options) section for details.
-* LAYOUT: the name of the **layout** (`{layout}.py`) to use for indexing. See the [Layouts](#Layouts) section for more details.
-* FILENAME: the filename of the video to process. 
+Once you've completely defined your layout, it's time to test everything out!
 
-# Options
+## Testing your setup
+Using the command-line option of `-p` to preview the output is the best way to test if your templates (characters) are being detected using your layout. The preview option will display the video as it processes each frame, and draw overlays on screen showing the ROIs as well as any successful detections:
 
-    -h, --help  show this help message and exit
-    -c          Output CSV format
-    -n          Show match number sequentially in output
-    -p          Preview while indexing
-    -t DIR      Path to templates folder (default: "templates" in current folder)
-    -z          Zoom preview window down to 50% (used with the -p option)
+![Testing for detection](assets/detection.jpg)
+
+> [!TIP]
+> During a preview, press `Q` to quit and exit the **Match Indexer**.
+
+Depending on your situation this might be a trial-and-error process of adjusting the position or dimensions of the layouts, and/or adjusting the quality of the template images, until you achieve successful detections.
 
 # Output
-The default output will print the results to the terminal window screen. However, for particularly long videos and/or convenience, you may redirect the output to a file as follows:
+## Output formats
+The default output format for matches detected is as follows:
+
+**Timestamp - {Character 1P} vs {Character 2P} (Match duration)**
+
+For example:
+````
+0:00:20 - Lei Fei vs Jacky (00:01:40)
+0:02:07 - Eileen vs Vanessa (00:01:05)
+````
+You may also output to CSV format (with the `-c` command-line option) which makes it easy to import into a spreadsheet for additional processing or analysis. The format is as follows:
+
+**Timestamp,{Character 1P},{Character 2P},Match duration**
+
+For example:
+````
+0:00:20,Lei Fei,Jacky,00:01:40
+0:02:07,Eileen,Vanessa,00:01:05
+````
+
+## Saving the output
+The default output will print the results to the terminal window screen, which you should be able to copy and paste quite easily. However, for particularly long videos and/or convenience, you may redirect the output to a file as follows:
 
     > python.exe match-indexer.py OPTIONS LAYOUT FILENAME > output.txt
 
-Furthermore, outputting to CSV format (with the `-c` command-line option) makes it easy to paste into a spreadsheet for additional processing or analysis.
+Again, using the `-c` command-line option to output in CSV format makes this really convenient for further editing in a spreadsheet.
