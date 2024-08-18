@@ -50,7 +50,7 @@ parser.add_argument('-c', help='Output CSV format', action='store_true')
 
 parser.add_argument('-n', help='Show match number sequentially in output', action='store_true')
 
-parser.add_argument('-p', help='Preview while indexing', action='store_true')
+parser.add_argument('-p', help='Preview while indexing (press \'Q\' to quit the preview)', action='store_true')
 
 parser.add_argument(
     '-t',
