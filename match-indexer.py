@@ -50,6 +50,8 @@ parser.add_argument('-c', help='Output CSV format', action='store_true')
 
 parser.add_argument('-n', help='Show match number sequentially in output', action='store_true')
 
+parser.add_argument('-o', help='Omit clock detection', action='store_true')
+
 parser.add_argument('-p', help='Preview while indexing (press \'Q\' to quit the preview)', action='store_true')
 
 parser.add_argument(
@@ -83,6 +85,14 @@ else:
     layoutFile = importlib.import_module("layouts." + args.layout)
     print('Layout: {0}'.format(args.layout))
 
+# Check omit clock
+if args.o:
+    omitClock = True
+    print("Clock detection: omitted")
+else:
+    omitClock = False
+    print("Clock detection: included")
+
 # Check preview
 if args.p:
     previewVideo = True
@@ -96,11 +106,12 @@ else:
 templateScale = layoutFile.layout['scale']
 roiP1 = layoutFile.layout['originPlayer1']
 roiP2 = layoutFile.layout['originPlayer2']
-roiClk = layoutFile.layout['originClock']
 roiPw = layoutFile.layout['widthPortrait']
 roiPh = layoutFile.layout['heightPortrait']
-roiCw = layoutFile.layout['widthClock']
-roiCh = layoutFile.layout['heightClock']
+if not omitClock:
+    roiClk = layoutFile.layout['originClock']
+    roiCw = layoutFile.layout['widthClock']
+    roiCh = layoutFile.layout['heightClock']
 
 # TO-DO: Make the debug flag more useful
 debug = False
@@ -109,8 +120,6 @@ debug = False
 # Match Information
 #
 def printMatchInfo(mID, mStart, p1, p2, mDuration):
-
-
 
     # Output in csv
     if args.c:
@@ -165,7 +174,7 @@ threshold = 0.72
 
 # No. of seconds before we consider detection lost
 detectThresholdSec = 6
-clockThresholdSec = 1
+if not omitClock: clockThresholdSec = 1
 
 # Video input
 cap = cv2.VideoCapture(videoFile)
@@ -192,7 +201,7 @@ print('--')
 
 # No. of Frames before we lose detection
 detectThreshold = detectThresholdSec * fps
-clockThreshold = clockThresholdSec * fps
+if not omitClock: clockThreshold = clockThresholdSec * fps
 
 # Empty list to store template images
 template_list1 = []
@@ -223,22 +232,27 @@ for myfile in files2:
     template_list2.append(resImage)
 
 # Prepare the Clock template
-clockImage = cv2.imread(templatePath + 'clock.jpg', 0)
-clockTemplate = cv2.resize(clockImage, None, fx=templateScale, fy=templateScale, interpolation=cv2.INTER_LINEAR)
+if not omitClock:
+    clockImage = cv2.imread(templatePath + 'clock.jpg', 0)
+    clockTemplate = cv2.resize(clockImage, None, fx=templateScale, fy=templateScale, interpolation=cv2.INTER_LINEAR)
 
 # Init variables
 frameCount = 0
 matchDetected1 = False
 matchDetected2 = False
-clockDetected = False
 thresholdCount1 = 0
 thresholdCount2 = 0
-clockCount = 0
+previouslyDetected = False
 matchCount = 0
 firstPass = True
-firstPassClock = True
-previouslyDetected = False
-clockPreviouslyOn = False
+if not omitClock:
+    clockDetected = False
+    clockCount = 0
+    firstPassClock = True
+    clockPreviouslyOn = False
+else:
+    clockDetected = True
+
 
 # Text label properties
 fontFace = cv2.FONT_HERSHEY_SIMPLEX
@@ -293,47 +307,48 @@ while cap.isOpened():
         #
         # Setup Clock ROI: frame[ row_range (y-coord), col_range (x-coord) ]
         #
-        imgClk_roi = frame[roiClk[1]:roiClk[1] + roiCh, roiClk[0]:roiClk[0] + roiCw]
-        imgClk_gray = cv2.cvtColor(imgClk_roi, cv2.COLOR_BGR2GRAY)
-        # Draw Clock ROI
-        if previewVideo:
-            cv2.rectangle(frame, roiClk, (roiClk[0] + roiCw, roiClk[1]+roiCh), colorCyan, borderThickness)
+        if not omitClock:
+            imgClk_roi = frame[roiClk[1]:roiClk[1] + roiCh, roiClk[0]:roiClk[0] + roiCw]
+            imgClk_gray = cv2.cvtColor(imgClk_roi, cv2.COLOR_BGR2GRAY)
+            # Draw Clock ROI
+            if previewVideo:
+                cv2.rectangle(frame, roiClk, (roiClk[0] + roiCw, roiClk[1]+roiCh), colorCyan, borderThickness)
 
-        w3, h3 = clockTemplate.shape[::-1]
-        res3 = cv2.matchTemplate(imgClk_gray, clockTemplate, cv2.TM_CCOEFF_NORMED)
-        loc3 = np.where(res3 >= threshold)
+            w3, h3 = clockTemplate.shape[::-1]
+            res3 = cv2.matchTemplate(imgClk_gray, clockTemplate, cv2.TM_CCOEFF_NORMED)
+            loc3 = np.where(res3 >= threshold)
 
-        if len(loc3[0]):
-            # Detected
-            if (clockCount > clockThreshold) and not clockDetected:
-                clockDetected = True
-                clockCount = 0
+            if len(loc3[0]):
+                # Detected
+                if (clockCount > clockThreshold) and not clockDetected:
+                    clockDetected = True
+                    clockCount = 0
+                else:
+                    clockCount += 1 + frameSkip
             else:
-                clockCount += 1 + frameSkip
-        else:
-            # Not detected
-            if (clockCount > clockThreshold) and clockDetected:
-                clockDetected = False
-                clockCount = 0
-            else:
-                clockCount += 1 + frameSkip
+                # Not detected
+                if (clockCount > clockThreshold) and clockDetected:
+                    clockDetected = False
+                    clockCount = 0
+                else:
+                    clockCount += 1 + frameSkip
 
-        if clockDetected and firstPassClock:
-            firstPassClock = False
-            clockPreviouslyOn = True
+            if clockDetected and firstPassClock:
+                firstPassClock = False
+                clockPreviouslyOn = True
 
-        if not clockDetected and clockPreviouslyOn:
-            firstPassClock = True
-            clockPreviouslyOn = False
+            if not clockDetected and clockPreviouslyOn:
+                firstPassClock = True
+                clockPreviouslyOn = False
 
-        if previewVideo and clockDetected:
-            for pt3 in zip(*loc3[::-1]):
-                # Draw the detected rectangle
-                cv2.rectangle(frame,
-                              (roiClk[0] + pt3[0], roiClk[1] + pt3[1]),
-                              (roiClk[0] + pt3[0] + w3, roiClk[1] + pt3[1] + h3),
-                              colorBlue,
-                              borderThickness)
+            if previewVideo and clockDetected:
+                for pt3 in zip(*loc3[::-1]):
+                    # Draw the detected rectangle
+                    cv2.rectangle(frame,
+                                (roiClk[0] + pt3[0], roiClk[1] + pt3[1]),
+                                (roiClk[0] + pt3[0] + w3, roiClk[1] + pt3[1] + h3),
+                                colorBlue,
+                                borderThickness)
 
         #
         # Player 1 ROI: frame[ row_range (y-coord), col_range (x-coord) ]
