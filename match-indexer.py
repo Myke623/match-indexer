@@ -124,23 +124,23 @@ def printMatchInfo(mID, mStart, p1, p2, mDuration):
     # Output in csv
     if args.c:
         delim = ","
-        
+
         if args.n:
             mIDString = str(mID) + delim  # Show the match IDs (sequential no)
         else:
             mIDString = ''  # Don't show the match IDs
-            
+
         outString = mIDString + mStart + delim + p1 + delim + p2 + delim + mDuration
-        
+
     # Output in plain text
     else:
         if args.n:
             mIDString = str(mID) + '. ' # Show the match IDs (sequential no)
         else:
             mIDString = ''  # Don't show the match IDs
-            
+
         outString = mIDString + mStart + " - " + p1 + " vs " + p2 + " (" + mDuration + ")"
-    
+
     print(outString)
 
 #
