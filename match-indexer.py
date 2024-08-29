@@ -113,6 +113,13 @@ if not omitClock:
     roiCw = layoutFile.layout['widthClock']
     roiCh = layoutFile.layout['heightClock']
 
+if "threshold" in layoutFile.layout: 
+    threshold = layoutFile.layout['threshold']
+else:
+    threshold = 0.72 # Default
+print("Detection Threshold: {0}".format(threshold))
+
+
 # TO-DO: Make the debug flag more useful
 debug = False
 
@@ -168,9 +175,6 @@ def printUsageInfo(usageList):
 
 # No. of frames to skip: speeds up analysis
 frameSkip = 30
-
-# Detection threshold (percentage)
-threshold = 0.72
 
 # No. of seconds before we consider detection lost
 detectThresholdSec = 6
