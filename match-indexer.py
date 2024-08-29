@@ -71,14 +71,14 @@ videoFile = args.filename
 
 # Check templates
 if args.t:
-    templatePath = args.t + '\\'
+    templatePath = os.path.join(args.t,'')
     print('Custom templates path: {0}'.format(templatePath))
 else:
-    templatePath = 'templates\\'
+    templatePath = os.path.join('templates','')
     print('Default templates path: {0}'.format(templatePath))
 
 # Check layouts
-if not os.path.isfile('layouts\\' + args.layout + '.py'):
+if not os.path.isfile(os.path.join('layouts', args.layout + '.py')):
     print("Layout {0}.py file does not exist in layouts/".format(args.layout))
     exit()
 else:
