@@ -116,7 +116,7 @@ if not omitClock:
 if "threshold" in layoutFile.layout: 
     threshold = layoutFile.layout['threshold']
 else:
-    threshold = 0.72 # Default
+    threshold = 0.9 # Default
 print("Detection Threshold: {0}".format(threshold))
 
 

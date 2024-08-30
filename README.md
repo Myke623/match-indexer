@@ -84,6 +84,7 @@ The layout file must define the following keys:
 | heightPortrait | px | The height, in pixels, of the Player Portrait's ROI |
 | widthClock | px | The width, in pixels, of the Clock ROI |
 | heightClock | px | The height, in pixels, of the Clock ROI |
+| threshold | % | OPTIONAL: Normalised percentage for the detection threshold, where 1.0 = 100% match. If unset, this will default to 0.9 (90%). Refer to the [Thresdhold](#Theshold) section for more information. |
 
 This data is used to setup various **Regions of Interest (ROIs)** in which the templates will be compared for a match. Each ROI is simply determined by it's origin, width and height. Since we know exactly where the character portraits will appear, we can narrow down our search area, rather than try to search across the entire video frame, by defining fairly contained ROIs to optimise performance.
 
@@ -100,6 +101,11 @@ Continuing our example, let's say I take a screenshot and measure out the game a
 
 > [!IMPORTANT]
 > The `scale` only applies to the template images, and not the ROIs. So, you'll need to determine their origins, widths and heights again for the custom/reduced layout.
+
+### Threshold
+This is an optional setting necessitated by the fact that the quality of the video you're analysing may not *work well* with the quality of your template images. Case in point, Virtua Fighter 5 Final Showdown matches streamed from Arcades in Japan usually incurred some kind of video quality degradation, and so trying to match a highly detailed character face onto a (kind of) blurry video didn't work at all! 
+
+The solution here was to relax the detection threshold value low enough to allow for successful detection, but still high enough to prevent false detections. For VF5FS arcade footage, I found this value to be 0.72 (72%). Depending on the quality of your videos and templates, this might be a trial-and-error process for you if you encounter detection issues. However, most modern Fighting Games these days are usually streamed/recorded with high quality direct-feed footage such that a high detection threshold of around 0.9 (90%) should work just fine, and is also the default value used if not set in the layout file.
 
 ### How to create layouts
 The best way to create your layout file is to capture a screenshot from the video, open it into an image editing program and draw rectangular shapes over the ROIs for Player 1, Player 2 and the Clock. Most image editing programs let you view the shape properties to determine it's origin on the canvas, as well as dimensions such as the width and height:
