@@ -7,5 +7,6 @@ layout = {
     "heightPortrait" : 23,
     "originClock" : (0,0), # Not used
     "widthClock" : 1, # Not used
-    "heightClock" : 1 # Not used
+    "heightClock" : 1, # Not used
+    "threshold" : 0.9 # Detection threshold (%)
 }
