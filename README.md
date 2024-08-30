@@ -84,7 +84,7 @@ The layout file must define the following keys:
 | heightPortrait | px | The height, in pixels, of the Player Portrait's ROI |
 | widthClock | px | The width, in pixels, of the Clock ROI |
 | heightClock | px | The height, in pixels, of the Clock ROI |
-| threshold | % | OPTIONAL: Normalised percentage for the detection threshold, where 1.0 = 100% match. If unset, this will default to 0.9 (90%). Refer to the [Thresdhold](#Theshold) section for more information. |
+| threshold | % | OPTIONAL: Normalised percentage for the detection threshold, where 1.0 = 100% match. If unset, this will default to 0.9 (90%). Refer to the [Threshold](#Theshold) section for more information. |
 
 This data is used to setup various **Regions of Interest (ROIs)** in which the templates will be compared for a match. Each ROI is simply determined by it's origin, width and height. Since we know exactly where the character portraits will appear, we can narrow down our search area, rather than try to search across the entire video frame, by defining fairly contained ROIs to optimise performance.
 
