@@ -20,6 +20,7 @@ From a terminal window:
 
     -h, --help  show this help message and exit
     -c          Output CSV format
+    -i          Include clock detection
     -n          Show match number sequentially in output
     -p          Preview while indexing (press 'Q' to quit the preview)
     -t DIR      Path to templates folder (default: "templates" in current folder)
@@ -61,7 +62,7 @@ The `{character}` label will be used in the output as the character's name. Also
 ### How to create templates
 My recommendation is to capture screenshots from the game at your *working resolution* with same player vs player matches, then use an image editing program to cut out the character portraits such that there's enough detail for them to be uniquely identifiable.
 
-You'll also need to create a template for the clock.
+You'll also need to create a template for the clock (a static component) if you intend to include it in your match detections. In some cases, including this fixed image detection amongst the variable images for characters can help improve the accuracy of results. Including the clock detection with matches is enabled through the `-i` command-line option.
 
 ![Creating Templates](assets/creating-templates.jpg)
 
@@ -82,8 +83,9 @@ The layout file must define the following keys:
 | originPlayer2 | (x,y) | Pixel coorindates for the upper-left corner of Player 2's ROI |
 | widthPortrait | px | The width, in pixels, of the Player Portrait's ROI |
 | heightPortrait | px | The height, in pixels, of the Player Portrait's ROI |
-| widthClock | px | The width, in pixels, of the Clock ROI |
-| heightClock | px | The height, in pixels, of the Clock ROI |
+| originClock | (x,y) | Pixel coorindates for the upper-left corner of Clock's ROI. Only required if `-i` command-line option used.  |
+| widthClock | px | The width, in pixels, of the Clock ROI. Only required if `-i` command-line option used. |
+| heightClock | px | The height, in pixels, of the Clock ROI. Only required if `-i` command-line option used. |
 | threshold | % | OPTIONAL: Normalised percentage for the detection threshold, where 1.0 = 100% match. If unset, this will default to 0.9 (90%). Refer to the [Threshold](#Theshold) section for more information. |
 
 This data is used to setup various **Regions of Interest (ROIs)** in which the templates will be compared for a match. Each ROI is simply determined by it's origin, width and height. Since we know exactly where the character portraits will appear, we can narrow down our search area, rather than try to search across the entire video frame, by defining fairly contained ROIs to optimise performance.

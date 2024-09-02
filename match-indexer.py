@@ -48,9 +48,9 @@ parser.add_argument(
 
 parser.add_argument('-c', help='Output CSV format', action='store_true')
 
-parser.add_argument('-n', help='Show match number sequentially in output', action='store_true')
+parser.add_argument('-i', help='Include clock detection', action='store_true')
 
-parser.add_argument('-o', help='Omit clock detection', action='store_true')
+parser.add_argument('-n', help='Show match number sequentially in output', action='store_true')
 
 parser.add_argument('-p', help='Preview while indexing (press \'Q\' to quit the preview)', action='store_true')
 
@@ -85,13 +85,13 @@ else:
     layoutFile = importlib.import_module("layouts." + args.layout)
     print('Layout: {0}'.format(args.layout))
 
-# Check omit clock
-if args.o:
-    omitClock = True
-    print("Clock detection: omitted")
-else:
-    omitClock = False
+# Check clock detection inclusion
+if args.i:
+    includeClock = True
     print("Clock detection: included")
+else:
+    includeClock = False
+    print("Clock detection: excluded")
 
 # Check preview
 if args.p:
@@ -108,7 +108,7 @@ roiP1 = layoutFile.layout['originPlayer1']
 roiP2 = layoutFile.layout['originPlayer2']
 roiPw = layoutFile.layout['widthPortrait']
 roiPh = layoutFile.layout['heightPortrait']
-if not omitClock:
+if includeClock:
     roiClk = layoutFile.layout['originClock']
     roiCw = layoutFile.layout['widthClock']
     roiCh = layoutFile.layout['heightClock']
@@ -178,7 +178,7 @@ frameSkip = 30
 
 # No. of seconds before we consider detection lost
 detectThresholdSec = 6
-if not omitClock: clockThresholdSec = 1
+if includeClock: clockThresholdSec = 1
 
 # Video input
 cap = cv2.VideoCapture(videoFile)
@@ -198,14 +198,14 @@ totalFrames = cap.get(cv2.CAP_PROP_FRAME_COUNT)
 print('Video: {0}' . format(videoFile))
 print('Frame width: {0:.0f}' . format(width))
 print('Frame height: {0:.0f}' . format(height))
-print('Frame rate: {0} fps' . format(fps))
+print('Frame rate: {0:.2f} fps' . format(fps))
 print('Length: {0}' . format(
     time.strftime("%H:%M:%S", time.gmtime(totalFrames / fps))))
 print('--')
 
 # No. of Frames before we lose detection
 detectThreshold = detectThresholdSec * fps
-if not omitClock: clockThreshold = clockThresholdSec * fps
+if includeClock: clockThreshold = clockThresholdSec * fps
 
 # Empty list to store template images
 template_list1 = []
@@ -236,7 +236,7 @@ for myfile in files2:
     template_list2.append(resImage)
 
 # Prepare the Clock template
-if not omitClock:
+if includeClock:
     clockImage = cv2.imread(templatePath + 'clock.jpg', 0)
     clockTemplate = cv2.resize(clockImage, None, fx=templateScale, fy=templateScale, interpolation=cv2.INTER_LINEAR)
 
@@ -249,7 +249,7 @@ thresholdCount2 = 0
 previouslyDetected = False
 matchCount = 0
 firstPass = True
-if not omitClock:
+if includeClock:
     clockDetected = False
     clockCount = 0
     firstPassClock = True
@@ -311,7 +311,7 @@ while cap.isOpened():
         #
         # Setup Clock ROI: frame[ row_range (y-coord), col_range (x-coord) ]
         #
-        if not omitClock:
+        if includeClock:
             imgClk_roi = frame[roiClk[1]:roiClk[1] + roiCh, roiClk[0]:roiClk[0] + roiCw]
             imgClk_gray = cv2.cvtColor(imgClk_roi, cv2.COLOR_BGR2GRAY)
             # Draw Clock ROI
