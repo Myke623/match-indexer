@@ -1,3 +1,20 @@
+<picture>
+ <source media="(prefers-color-scheme: dark)" srcset="assets\match-indexer-logo-dark.png">
+ <source media="(prefers-color-scheme: light)" srcset="assets\match-indexer-logo-light.png">
+ <img alt="Match Indexer Logo" src="assets\match-indexer-logo-light.png">
+</picture>
+
+# Table of Contents
+* [Description](#description)
+* [Usage](#usage)
+* [Options](#options)
+* [Dependencies](#dependencies)
+* [Installation](#installation)
+* [Setup](#setup)
+  * [Templates](#templates)
+  * [Layouts](#layouts)
+  * [Output](#Output)
+
 # Description
 **Match Indexer** is a Python script that is run from the command-line to generate a match index for your Fighting Game videos. The match index includes:
 * Timestamps for all matches
