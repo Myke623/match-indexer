@@ -13,7 +13,7 @@
 * [Setup](#setup)
   * [Templates](#templates)
   * [Layouts](#layouts)
-  * [Output](#Output)
+* [Output](#Output)
 
 # Description
 **Match Indexer** is a Python script that is run from the command-line to generate a match index for your Fighting Game videos. The match index includes:
